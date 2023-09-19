@@ -1,4 +1,4 @@
-module tincl
+module github.com/Tolyar/tincl
 
 go 1.20
 

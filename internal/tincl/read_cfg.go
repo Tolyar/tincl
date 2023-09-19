@@ -1,15 +1,10 @@
-package main
+package tincl
 
 import (
-	"bufio"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/abiosoft/ishell/v2"
-	"github.com/reiver/go-oi"
-	"github.com/reiver/go-telnet"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -81,53 +76,4 @@ func ReadConfig() Config {
 	}
 
 	return c
-}
-
-func TelnetInput(c *ishell.Context) {
-	c.Printf("RawArgs: %s\n", c.RawArgs)
-}
-
-type Caller struct{}
-
-func (c *Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader) {
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		oi.LongWrite(w, scanner.Bytes())
-		oi.LongWrite(w, []byte("\n"))
-	}
-}
-
-func OpenTelnet(cfg Config) (error, *Caller) {
-	caller := Caller{}
-
-	if cfg.TLS {
-		tlsConfig := &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		}
-		if err := telnet.DialToAndCallTLS(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), caller, tlsConfig); err != nil {
-			return err, nil
-		}
-	} else {
-		if err := telnet.DialToAndCall(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), caller); err != nil {
-			return err, nil
-		}
-	}
-
-	return nil, &caller
-}
-
-func main() {
-	cfg := ReadConfig()
-
-	if cfg.Host != "" {
-		OpenTelnet(cfg)
-	}
-
-	if cfg.Interactive {
-		shell := ishell.New()
-		shell.NotFound(TelnetInput)
-		// Read and write history to $HOME/.ishell_history
-		shell.SetHomeHistoryPath(".ishell_history")
-		shell.Run()
-	}
 }
