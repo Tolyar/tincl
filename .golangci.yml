@@ -54,6 +54,7 @@ linters:
     - varnamelen
     - tagliatelle
     - errorlint
+    - maligned
   fast: false
 
 issues:
