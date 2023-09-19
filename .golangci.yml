@@ -1,0 +1,76 @@
+linters-settings:
+  errcheck:
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
+    # Such cases aren't reported by default.
+    # Default: false
+    check-type-assertions: true
+    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`.
+    # Such cases aren't reported by default.
+    # Default: false
+    check-blank: true
+  govet:
+    # report about shadowed variables
+    check-shadowing: true
+  revive:
+    # Sets the default failure confidence.
+    # This means that linting errors with less than 0.8 confidence will be ignored.
+    # Default: 0.8
+    confidence: 0.5
+  gocyclo:
+    # minimal code complexity to report, 30 by default (but we recommend 10-20)
+    min-complexity: 20
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 150
+  funlen:
+    statements: 80
+    lines: 200
+  tagliatelle:
+    case:
+      rules:
+        yaml: snake
+  dupl:
+    # Tokens count to trigger issue.
+    # Default: 150
+    threshold: 250
+
+linters:
+  enable-all: true
+  disable:
+    - wrapcheck
+    - goerr113
+    - goconst
+    - gomnd
+    - cyclop
+    - exhaustivestruct
+    - exhaustive
+    - exhaustruct
+    - golint
+    - wsl
+    - godox
+    - gochecknoinits # Usefull for cobra.
+    - gochecknoglobals # Globals are usefull for cobra.
+    - varnamelen
+    - tagliatelle
+    - errorlint
+  fast: false
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  exclude-rules:
+    # Exclude lll issues for long lines with go:generate
+    - linters:
+        - lll
+      source: "^//go:generate "
+    - linters:
+        - exhaustruct
+      text: "(WaitGroup, Mutex|Mutex|WaitGroup|Mutex, WaitGroup|wg is missing in|mu is missing in)"
+    - linters:
+        - revive
+      text: "if-return: redundant if ...; err != nil check, just return error instead."
+
+output:
+  format: tab
