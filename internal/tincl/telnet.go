@@ -18,18 +18,21 @@ func TelnetInput(c *ishell.Context) {
 	c.Printf("RawArgs: %s\n", c.RawArgs)
 }
 
-type Caller struct{}
+func NewCaller(r io.ReadCloser, w io.WriteCloser) Caller {
+	c := Caller{}
+	c.r = r
+	c.w = w
 
-// func (c Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader) {
-// 	scanner := bufio.NewScanner(os.Stdin)
-// 	for scanner.Scan() {
-// 		oi.LongWrite(w, scanner.Bytes())
-// 		oi.LongWrite(w, []byte("\n"))
-// 	}
-// }
+	return c
+}
+
+type Caller struct {
+	r io.ReadCloser
+	w io.WriteCloser
+}
 
 func (c Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader) {
-	go func(writer io.Writer, reader io.Reader) {
+	go func(writer io.WriteCloser, reader io.Reader) {
 		var buffer [1]byte // Seems like the length of the buffer needs to be small, otherwise will have to wait for buffer to fill up.
 		p := buffer[:]
 
@@ -44,7 +47,9 @@ func (c Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader)
 
 			oi.LongWrite(writer, p)
 		}
-	}(os.Stdout, r)
+
+		c.r.Close()
+	}(c.w, r)
 
 	var buffer bytes.Buffer
 	var p []byte
@@ -52,8 +57,8 @@ func (c Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader)
 	crlfBuffer := [2]byte{'\r', '\n'}
 	crlf := crlfBuffer[:]
 
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(scannerSplitFunc)
+	scanner := bufio.NewScanner(c.r)
+	// scanner.Split(scannerSplitFunc)
 
 	for scanner.Scan() {
 		buffer.Write(scanner.Bytes())
@@ -79,16 +84,8 @@ func (c Caller) CallTELNET(ctx telnet.Context, w telnet.Writer, r telnet.Reader)
 	time.Sleep(3 * time.Millisecond)
 }
 
-func scannerSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	if atEOF {
-		return 0, nil, nil
-	}
-
-	return bufio.ScanLines(data, atEOF)
-}
-
 func OpenTelnet(cfg Config) (*Caller, error) {
-	caller := Caller{}
+	caller := NewCaller(os.Stdin, os.Stdout)
 
 	if cfg.TLS {
 		tlsConfig := &tls.Config{
@@ -104,4 +101,50 @@ func OpenTelnet(cfg Config) (*Caller, error) {
 	}
 
 	return &caller, nil
+}
+
+type Telnet struct {
+	conn *telnet.Conn
+}
+
+// Read one line from telnet connection.
+func (t *Telnet) ReadLine() string {
+	var buf bytes.Buffer
+
+	p := make([]byte, 1)
+	buf.Reset()
+
+	for {
+		n, err := t.conn.Read(p)
+
+		if n <= 0 && nil == err {
+			continue
+		} else if nil != err {
+			break
+		}
+
+		buf.Write(p)
+
+		if p[0] == byte('\n') {
+			break
+		}
+	}
+
+	return buf.String()
+}
+
+func NewTelnet(cfg Config) (*Telnet, error) {
+	conn, err := telnet.DialTo(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port))
+	if err != nil {
+		return nil, err
+	}
+
+	t := Telnet{conn: conn}
+
+	fmt.Printf("R1: %s\n", t.ReadLine())
+	conn.Write([]byte("quit\r\n"))
+	fmt.Printf("R2: %s\n", t.ReadLine())
+	conn.Close()
+
+	return &t, nil
 }

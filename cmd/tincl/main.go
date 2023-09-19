@@ -10,7 +10,7 @@ func main() {
 	cfg := ReadConfig()
 
 	if cfg.Host != "" {
-		OpenTelnet(cfg)
+		NewTelnet(cfg)
 	}
 
 	if cfg.Interactive {
