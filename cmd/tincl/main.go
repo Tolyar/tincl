@@ -7,15 +7,17 @@ import (
 )
 
 func main() {
-	cfg := ReadConfig()
+	var t *Telnet
 
-	if cfg.Host != "" {
-		NewTelnet(cfg)
-	}
+	cfg := ReadConfig()
 
 	if cfg.Interactive {
 		shell := ishell.New()
-		shell.NotFound(TelnetInput)
+		if cfg.Host != "" {
+			cfg.Shell = shell
+			t, _ = NewTelnet(&cfg)
+		}
+		shell.NotFound(TelnetInput(t))
 		// Read and write history to $HOME/.ishell_history
 		shell.SetHomeHistoryPath(".ishell_history")
 		shell.Run()

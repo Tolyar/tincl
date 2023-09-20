@@ -2,9 +2,11 @@ package tincl
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 
+	"github.com/abiosoft/ishell/v2"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -12,11 +14,13 @@ import (
 const AppName = "tincl"
 
 type Config struct {
-	Interactive bool   // Run in an interactive mode.
-	Host        string // Connection host.
-	Port        int    // Connection port.
-	Script      string // Script path.
-	TLS         bool   // Use TLS connection (telnets).
+	Interactive bool          // Run in an interactive mode.
+	Host        string        // Connection host.
+	Port        int           // Connection port.
+	Script      string        // Script path.
+	TLS         bool          // Use TLS connection (telnets).
+	Writer      io.Writer     // Writer for incoming data from telnet server. By default is os.Stdout.
+	Shell       *ishell.Shell // Ishell instance .
 }
 
 func Usage() {
@@ -70,6 +74,7 @@ func ReadConfig() Config {
 	c.Host = viper.GetString("host")
 	c.Interactive = viper.GetBool("interactive")
 	c.Script = viper.GetString("script")
+	c.Writer = os.Stdout
 
 	if !c.Interactive && c.Host == "" {
 		Usage()
