@@ -18,7 +18,7 @@ func TelnetInput(t *Telnet) func(c *ishell.Context) {
 		if t == nil {
 			return
 		}
-		// fmt.Printf("DEBUG: \n\t%+v \n\t%+v\n", t, c)
+		// fmt.Printf("DEBUG: TelnetInput: \n\t%+v \n\t%+v\n", t, c)
 		t.cfg.Shell.ShowPrompt(false)
 		t.WriteLine(strings.Join(c.RawArgs, " "))
 		// Let's chance to print something.
@@ -71,6 +71,7 @@ func (t *Telnet) readLoop() {
 			break
 		} else if s != "" {
 			t.cfg.Shell.ShowPrompt(false)
+			// fmt.Printf("DEBUG: readLoop: %v\n", s)
 			t.cfg.Shell.Println(s)
 			t.cfg.Shell.ShowPrompt(true)
 		}
