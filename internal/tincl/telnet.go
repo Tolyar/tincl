@@ -3,6 +3,7 @@ package tincl
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -65,7 +66,7 @@ func (t *Telnet) readLoop() {
 		t.cfg.Shell.ShowPrompt(false)
 
 		if s, err := t.ReadLine(); err != nil {
-			t.cfg.Shell.Printf("Connection broken by remote host %v\n", err)
+			log.Fatalf("Connection broken by remote host %v\n", err)
 			// t.cfg.Shell.ShowPrompt(true)
 			break
 		} else if s != "" {
