@@ -14,13 +14,14 @@ import (
 const AppName = "tincl"
 
 type Config struct {
-	Interactive bool          // Run in an interactive mode.
-	Host        string        // Connection host.
-	Port        int           // Connection port.
-	Script      string        // Script path.
-	TLS         bool          // Use TLS connection (telnets).
-	Writer      io.Writer     // Writer for incoming data from telnet server. By default is os.Stdout.
-	Shell       *ishell.Shell // Ishell instance .
+	Interactive        bool          // Run in an interactive mode.
+	Host               string        // Connection host.
+	Port               int           // Connection port.
+	Script             string        // Script path.
+	TLS                bool          // Use TLS connection (telnets).
+	ReadTelnetGreeting bool          // Read and show header from telnet. E.g. SMTP greeting. May need to be disabled if scripting is used.
+	Writer             io.Writer     // Writer for incoming data from telnet server. By default is os.Stdout.
+	Shell              *ishell.Shell // Ishell instance .
 }
 
 func Usage() {
@@ -41,6 +42,7 @@ func ReadConfig() Config {
 	pflag.StringP("host", "H", "", "Connection host")
 	pflag.StringP("script", "s", "", "Script for execution")
 	pflag.BoolP("tls", "t", false, "Use TLS mode")
+	pflag.BoolP("disable-greeting", "n", false, "Do not read greeting from telnet server.")
 
 	pflag.Parse()
 
@@ -75,6 +77,7 @@ func ReadConfig() Config {
 	c.Interactive = viper.GetBool("interactive")
 	c.Script = viper.GetString("script")
 	c.Writer = os.Stdout
+	c.ReadTelnetGreeting = !viper.GetBool("disable-greeting")
 
 	if !c.Interactive && c.Host == "" {
 		Usage()

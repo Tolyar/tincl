@@ -113,7 +113,9 @@ func NewTelnet(cfg *Config) (*Telnet, error) {
 	t := Telnet{conn: conn}
 	t.cfg = cfg
 
-	t.ReadLoop()
+	if cfg.ReadTelnetGreeting {
+		t.ReadLoop()
+	}
 
 	return &t, nil
 }

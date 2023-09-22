@@ -42,6 +42,14 @@ func main() {
 	// Read and write history to $HOME/.ishell_history
 	shell.SetHomeHistoryPath(".ishell_history")
 
+	if cfg.Script != "" {
+		RunScript(cfg.Script, t)
+	}
+
+	if !cfg.ReadTelnetGreeting {
+		t.ReadLoop()
+	}
+
 	if cfg.Interactive {
 		shell.Run()
 	} else {
