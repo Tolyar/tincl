@@ -1,9 +1,13 @@
 # Overview
 
-Tincl (Telnet INteractive CLient) is an interactive telnet client with history and automation via scripting.
+Tincl (Telnet INteractive CLient) is an interactive telnet client with history and automation via scripting. Tincl supports only text based telnet sessions and can't process binary data. All incoming and outgoing data is converting to strings.
 
 # License
 Tincl is released under the GPL 3.0 license. See [LICENSE.txt](LICENSE.txt)
+
+# Current state
+
+At the moment tincl has alfa quality code. There is no timeouts, test cases and fuzzing. You should not use it with untrusted telnet servers.
 
 # Usage
 
