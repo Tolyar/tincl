@@ -13,17 +13,23 @@ import (
 
 const SleepMs = 50
 
-func TelnetInput(t *Telnet) func(c *ishell.Context) {
-	return func(c *ishell.Context) {
+func RunCmd(t *Telnet, cmd string) {
+	// fmt.Printf("DEBUG: RunCmd: cmd: %s\n", cmd)
+	t.cfg.Shell.ShowPrompt(false)
+	if n, err := t.WriteLine(cmd); err != nil || n < len(cmd) {
+		log.Fatalf("Can't send command to telnet. Send %d from %d bytes, with error: %v\n", n, len(cmd), err)
+	}
+	// Let's chance to print something.
+	time.Sleep(SleepMs * time.Millisecond)
+	t.cfg.Shell.ShowPrompt(true)
+}
+
+func TelnetInput(t *Telnet) func(ctx *ishell.Context) {
+	return func(ctx *ishell.Context) {
 		if t == nil {
 			return
 		}
-		// fmt.Printf("DEBUG: TelnetInput: \n\t%+v \n\t%+v\n", t, c)
-		t.cfg.Shell.ShowPrompt(false)
-		t.WriteLine(strings.Join(c.RawArgs, " "))
-		// Let's chance to print something.
-		time.Sleep(SleepMs * time.Millisecond)
-		t.cfg.Shell.ShowPrompt(true)
+		RunCmd(t, strings.Join(ctx.RawArgs, " "))
 	}
 }
 

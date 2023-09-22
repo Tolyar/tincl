@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"log"
+	"os"
 	"time"
 
 	. "github.com/Tolyar/tincl/internal/tincl"
-
 	"github.com/abiosoft/ishell/v2"
 )
 
@@ -21,7 +22,10 @@ func main() {
 		Help: "Send crlf",
 		Func: func(c *ishell.Context) {
 			c.ShowPrompt(false)
-			t.WriteLine("\r\n")
+			cmd := "\r\n"
+			if n, err := t.WriteLine(cmd); err != nil || n < len(cmd) {
+				log.Fatalf("Can't send command to telnet. Send %d from %d bytes, with error: %v\n", n, len(cmd), err)
+			}
 			time.Sleep(50 * time.Millisecond)
 			c.ShowPrompt(true)
 		},
@@ -40,5 +44,12 @@ func main() {
 
 	if cfg.Interactive {
 		shell.Run()
+	} else {
+		scanner := bufio.NewScanner((os.Stdin))
+		for scanner.Scan() {
+			input := scanner.Text()
+			RunCmd(t, input)
+		}
+
 	}
 }
