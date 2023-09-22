@@ -1,7 +1,7 @@
 package tincl
 
 import (
-	"log"
+	"fmt"
 
 	lua "github.com/yuin/gopher-lua"
 )
@@ -29,7 +29,7 @@ func ReadFromTelnet(t *Telnet) func(L *lua.LState) int {
 	}
 }
 
-func RunScript(path string, t *Telnet) {
+func RunScript(path string, t *Telnet) error {
 	L := lua.NewState()
 	defer L.Close()
 
@@ -38,6 +38,10 @@ func RunScript(path string, t *Telnet) {
 	L.SetGlobal("ReadFromTelnet", L.NewFunction(ReadFromTelnet(t)))
 
 	if err := L.DoFile(path); err != nil {
-		log.Fatalf("Can't load lua script '%s' : %v\n", path, err)
+		fmt.Printf("Can't load lua script '%s' : %v\n", path, err)
+
+		return err
 	}
+
+	return nil
 }

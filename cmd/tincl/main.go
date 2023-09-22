@@ -31,6 +31,17 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "script",
+		Help: "Run lua script",
+		Func: func(c *ishell.Context) {
+			c.ShowPrompt(false)
+			// Ignore error. We need to continue.
+			_ = RunScript(cfg.Script, t)
+			c.ShowPrompt(true)
+		},
+	})
+
 	if cfg.Host != "" {
 		cfg.Shell = shell
 		t, err = NewTelnet(&cfg)
@@ -43,7 +54,9 @@ func main() {
 	shell.SetHomeHistoryPath(".ishell_history")
 
 	if cfg.Script != "" {
-		RunScript(cfg.Script, t)
+		if err := RunScript(cfg.Script, t); err != nil {
+			os.Exit(1)
+		}
 	}
 
 	if !cfg.ReadTelnetGreeting {
