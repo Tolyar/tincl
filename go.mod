@@ -1,6 +1,6 @@
 module github.com/Tolyar/tincl
 
-go 1.20
+go 1.22
 
 require (
 	github.com/abiosoft/ishell/v2 v2.0.2
