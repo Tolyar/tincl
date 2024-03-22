@@ -1,6 +1,7 @@
+---
 builds:
-  id: "tincl"
-  main: cmd/tincl
-  env:
-    - CGO_ENABLED=0
-
+  -
+    id: "tincl"
+    main: cmd/tincl
+    env:
+      - CGO_ENABLED=0
