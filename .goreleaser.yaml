@@ -10,3 +10,65 @@ builds:
       - darwin
       - freebsd
 
+nfpms:
+  # note that this is an array of nfpm configs
+  - #
+    # ID of the nfpm config, must be unique.
+    #
+    # Default: 'default'
+    id: tincl
+
+    # Name of the package.
+    # Default: ProjectName
+    # Templates: allowed (since v1.18)
+    package_name: tincl
+
+    # You can change the file name of the package.
+    #
+    # Default: '{{ .PackageName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+    # Templates: allowed
+    file_name_template: "{{ .ConventionalFileName }}"
+
+    # Your app's vendor.
+    vendor: Tolyar
+
+    # Your app's homepage.
+    homepage: https://github.com/Tolyar/tincl
+
+    # Your app's maintainer (probably you).
+    maintainer: Tolyar
+
+    # Your app's description.
+    description: |-
+      Tincl (Telnet INteractive CLient) is an interactive telnet client with history and automation via scripting.
+      Tincl supports only text based telnet sessions and can't process binary data. All incoming and outgoing data is converting to strings.
+
+    # Your app's license.
+    license: GPL3
+
+    # Formats to be generated.
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb # Since: v1.11
+      - archlinux # Since: v1.13
+
+    # Umask to be used on files without explicit mode set. (overridable)
+    #
+    # Default: 0o002 (will remove world-writable permissions)
+    # Since: v1.19
+    umask: 0o002
+
+    # Packages it provides. (overridable)
+    #
+    # Since: v1.11
+    provides:
+      - tincl
+
+    # Path that the binaries should be installed.
+    #
+    # Default: '/usr/bin'
+    bindir: /usr/bin
+
+
