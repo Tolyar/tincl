@@ -5,3 +5,8 @@ builds:
     main: cmd/tincl
     env:
       - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+
